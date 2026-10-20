@@ -1,0 +1,125 @@
+HERMES + OPEN WEBUI - INSTALACAO COMPLETA
+======================================
+Revisao corrigida: 2026.10.14-r1 (integracao 2.2.0).
+
+Extraia TODO o ZIP em uma pasta local. Nao execute arquivos dentro do ZIP.
+WINDOWS: de duplo clique em INSTALAR.cmd.
+LINUX: abra o terminal na pasta extraida e execute bash INSTALAR-LINUX.sh.
+O arquivo inicia Hermes e Open WebUI, cria a conta administrativa do WebUI,
+instala oito perfis, cinco grupos, politicas de acesso e entrega de arquivos.
+Nao e necessario copiar chaves entre os dois sistemas ou importar funcoes.
+
+Docker ausente: Windows usa Winget/Docker Desktop; Linux instala Docker Engine
+e Compose pelo repositorio oficial em Ubuntu/Debian. Docker Desktop pode exigir
+aceite de termos, WSL 2/virtualizacao, privilegios ou reinicio. Conclua essas
+etapas do sistema e execute o MESMO arquivo novamente. Nas outras distribuicoes
+Linux, instale Docker/Compose antes. Internet e necessaria para baixar imagens.
+As imagens Hermes e Open WebUI estao fixadas por digest, nao por latest.
+
+ACESSO
+Open WebUI: http://localhost:3000/ ou http://IP-DA-MAQUINA:3000/
+Dashboard Hermes: http://localhost:9120/ ou http://IP-DA-MAQUINA:9120/
+Chromium: http://localhost:6080/ ou http://IP-DA-MAQUINA:6080/
+Credenciais novas Hermes: .env, campos HERMES_DASHBOARD_BASIC_AUTH_USERNAME e
+HERMES_DASHBOARD_BASIC_AUTH_PASSWORD.
+Credenciais novas WebUI: .env.openwebui, campos WEBUI_ADMIN_EMAIL e
+WEBUI_ADMIN_PASSWORD. Email inicial admin@hermes.local; senha aleatoria unica.
+No Linux os arquivos novos sao privados do dono (600).
+Guarde esses arquivos localmente. Nao compartilhe .env/.env.openwebui.
+
+CHAVE NVIDIA
+A chave NVIDIA NAO vem no pacote e nao e gerada. Acesse http://localhost:9120/env
+e vincule sua NVIDIA_API_KEY. Modelo: nvidia/nemotron-3-super-120b-a12b.
+Os assistentes aparecem antes da chave, mas precisam dela para responder.
+
+USUARIOS
+O cadastro publico fica desabilitado em uma instalacao nova. Entre como admin,
+cadastre os funcionarios e associe-os aos grupos em Administracao > Grupos.
+Usuarios comuns recebem apenas os perfis autorizados, sem controles, prompt
+editavel, parametros, Valves, chat temporario ou integracoes opcionais.
+Administradores mantem os controles nativos do Open WebUI.
+Anexos e downloads permanecem habilitados. Todos os perfis/subagentes recebem
+a regra de portugues do Brasil, exceto quando outra lingua for solicitada.
+As sugestoes de conversa dos oito perfis tambem sao em portugues do Brasil.
+Imagens PNG/JPEG/WebP: ate 10 MB e 40 megapixels por imagem, ate 20 imagens no
+contexto da solicitacao. A analise usa meta/llama-3.2-90b-vision-instruct na
+NVIDIA com a mesma chave vinculada; Nemotron Super coordena a resposta.
+Disponibilidade e limites dependem do provedor. URLs externas de imagem nao
+sao aceitas: anexe o arquivo. Isso nao habilita audio, video ou OCR em lote de PDFs.
+O coordenador delega atividades dentro de seu perfil; nao seleciona
+automaticamente os outros especialistas da lista.
+
+TESTAR OUTROS MODELOS NO OPEN WEBUI
+As conexoes de modelos externos compativeis com OpenAI ficam habilitadas.
+Como administrador, use Painel de Administracao > Configuracoes > Conexoes
+para cadastrar outros provedores. Usuarios comuns nao cadastram provedores.
+Gemini: URL https://generativelanguage.googleapis.com/v1beta/openai e chave
+Google AI Studio. Cadastre a chave no painel local; ela nao vem no pacote.
+Depois de salvar, confira os modelos e configure quem pode acessa-los.
+Conexoes e chaves existentes sao preservadas. Os perfis e grupos Hermes mantem
+suas permissoes. Modelos externos sao independentes: conectar Gemini no WebUI
+nao troca o motor do Hermes nem aplica automaticamente seu Chromium/fila.
+Ferramentas opcionais e conexoes pessoais continuam restritas aos usuarios
+comuns. Ollama permanece desabilitado por padrao; o administrador pode
+configurar e habilitar um servidor Ollama quando necessario.
+O administrador pode bloquear/desbloquear os recursos nativos pelo painel,
+incluindo modelos, funcoes, ferramentas e permissoes dos grupos. Restricoes
+para usuarios comuns sao aplicadas somente na primeira configuracao.
+Reexecutar preserva decisoes posteriores do administrador: ativacao dos
+perfis, preferencias das Valves, parametros, capacidades, compartilhamento e
+permissoes. Endereco e chave da API local sao sincronizados com a instalacao.
+
+REEXECUCAO E INSTALACOES EXISTENTES
+Reexecute da mesma pasta: credenciais e volumes existentes sao preservados.
+Para corrigir uma instalacao existente, extraia este pacote por cima dos
+arquivos da pasta ORIGINAL. Mantenha .env e .env.openwebui existentes.
+Windows: execute INSTALAR.cmd. Linux: execute bash INSTALAR-LINUX.sh.
+O instalador reconstruira Hermes, atualizara a integracao e sincronizara
+somente o endereco e a chave da API local. Nao altera sua chave NVIDIA.
+Uma verificacao assinada entre os containers deve passar antes da conclusao.
+Se falhar, a instalacao informa autenticacao, endereco/versao ou conexao;
+nao anuncia sucesso com uma API incompativel. Depois atualize a pagina WebUI.
+Se ja houver hermes-open-webui ou open-webui, o instalador reutiliza o container,
+mantem login/dados e aplica os perfis e permissoes. Nao exporta esses dados.
+As permissoes restritas se aplicam aos usuarios comuns de TODO o WebUI usado.
+Reutilizar uma versao diferente do WebUI depende das APIs dessa versao.
+Hermes existente em outra pasta: use a pasta original. No Windows, a opcao
+-ReusarInstalacao esta disponivel em instalar-tudo.ps1, mantendo o .env original.
+Nao use docker compose down -v: isso apaga os volumes.
+
+OPCOES
+Windows, outra porta numa instalacao nova:
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File instalar-tudo.ps1 -WebUIPort 3001
+Linux: bash INSTALAR-LINUX.sh --porta 3001
+Container WebUI existente com outro nome:
+Windows: instalar-tudo.ps1 -WebUIContainer NOME
+Linux: bash INSTALAR-LINUX.sh --container NOME
+Preparar credenciais sem iniciar Docker:
+Windows: instalar-tudo.ps1 -PrepararSomente
+Linux: bash INSTALAR-LINUX.sh --preparar-somente
+Em reexecucoes, a porta gravada em .env.openwebui e preservada.
+
+LAN E RECURSOS
+As portas 3000, 9120, 6080 e 8643 ficam publicadas para acesso pela LAN.
+Windows: o instalador solicita autorizacao administrativa do Windows (UAC)
+para criar uma regra de firewall TCP, somente para a sub-rede local, nos perfis
+Privado/Dominio. Em redes confiaveis, configure o perfil de rede como Privado.
+Nao abre acesso no perfil Publico. Para reaplicar a regra, execute
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File liberar-lan.ps1
+Se o WebUI usar outra porta, acrescente -WebUIPort NUMERO.
+Linux: Docker publica as portas; se houver firewall corporativo ou do host que
+bloqueie a LAN, autorize essas portas somente para a sub-rede interna. O pacote
+nao altera politicas de firewall do Linux. VPNs/sub-redes diferentes exigem
+regra especifica do administrador de rede.
+Para acesso local, ajuste OPEN_WEBUI_BIND_ADDRESS em .env.openwebui. A conexao
+WebUI em Docker exige que a API Hermes seja acessivel pelo host-gateway.
+Para aplicar alteracoes de porta/bind ao WebUI criado por este pacote, execute:
+docker compose --project-name hermes-openwebui --env-file .env.openwebui -f docker-compose.openwebui.yml up -d
+Hermes tem limite de 6 GB e WebUI de 3 GB; o sistema precisa de memoria adicional.
+As tres vagas Chromium sao compartilhadas entre chats e subagentes e encerradas
+ao fim. Codigo/SQL sao gerados/revisados, nao executados em producao.
+PDFs com texto podem ser lidos; PDFs escaneados podem ser unidos/separados,
+mas OCR nao esta habilitado. Bases internas e conexoes CRM/bancos nao vem no ZIP.
+
+O pacote inclui somente codigo e configuracao: SEM chaves, senhas pessoais,
+usuarios, documentos, historicos, volumes ou cookies desta instalacao.

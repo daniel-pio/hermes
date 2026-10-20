@@ -1,0 +1,65 @@
+services:
+  hermes:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: hermes-agent-visible:v2026.9.11-lan-pool3
+    container_name: hermes-agent-v2026-9-11
+    restart: unless-stopped
+    command: ["gateway", "run"]
+
+    environment:
+      HERMES_DASHBOARD: "1"
+      HERMES_DASHBOARD_HOST: "0.0.0.0"
+      HERMES_DASHBOARD_PORT: "9119"
+      HERMES_DASHBOARD_BASIC_AUTH_USERNAME: "${HERMES_DASHBOARD_BASIC_AUTH_USERNAME:?Set HERMES_DASHBOARD_BASIC_AUTH_USERNAME in .env}"
+      HERMES_DASHBOARD_BASIC_AUTH_PASSWORD: "${HERMES_DASHBOARD_BASIC_AUTH_PASSWORD:?Set HERMES_DASHBOARD_BASIC_AUTH_PASSWORD in .env}"
+      HERMES_DASHBOARD_BASIC_AUTH_SECRET: "${HERMES_DASHBOARD_BASIC_AUTH_SECRET:?Set HERMES_DASHBOARD_BASIC_AUTH_SECRET in .env}"
+
+      API_SERVER_ENABLED: "true"
+      API_SERVER_HOST: "0.0.0.0"
+      API_SERVER_KEY: "${API_SERVER_KEY:?Set API_SERVER_KEY in .env}"
+      API_SERVER_CORS_ORIGINS: "*"
+
+      DISPLAY: ":99"
+      SCREEN_WIDTH: "1600"
+      SCREEN_HEIGHT: "900"
+      SCREEN_DEPTH: "24"
+      CDP_PORT: "9222"
+      NOVNC_PORT: "6080"
+      BROWSER_POOL_SIZE: "3"
+      BROWSER_INACTIVITY_TIMEOUT: "300"
+      BROWSER_POOL_IDLE_SECONDS: "300"
+      BROWSER_POOL_MAX_SECONDS: "1800"
+      BROWSER_POOL_QUEUE_SECONDS: "600"
+      NVIDIA_API_KEY: "${NVIDIA_API_KEY:-}"
+
+    ports:
+      # 0.0.0.0 permite localhost e o IPv4 da maquina na rede local.
+      # Para restringir a somente localhost, use HERMES_BIND_ADDRESS=127.0.0.1 no .env.
+      - "${HERMES_BIND_ADDRESS:-0.0.0.0}:9120:9119"
+      - "${HERMES_BIND_ADDRESS:-0.0.0.0}:8643:8642"
+      - "${HERMES_BIND_ADDRESS:-0.0.0.0}:6080:6080"
+
+    volumes:
+      - hermes_data:/opt/data
+      - hermes_browser_data:/browser-data
+
+    shm_size: "1gb"
+    mem_limit: "6g"
+    cpus: "3.5"
+    pids_limit: 2048
+
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - /usr/local/lib/verify-health.py
+      interval: 15s
+      timeout: 10s
+      retries: 8
+      start_period: 60s
+
+volumes:
+  hermes_data:
+  hermes_browser_data:

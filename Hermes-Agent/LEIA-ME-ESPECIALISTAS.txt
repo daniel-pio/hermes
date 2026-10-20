@@ -1,0 +1,76 @@
+HERMES: ESPECIALISTAS E ACESSO POR SETOR
+=====================================
+
+Atualize o container Hermes pelo instalador e execute integrar-openwebui.ps1
+ou integrar-openwebui.sh. O catalogo hermes-specialists.json nao tem segredos.
+Os scripts criam oito assistentes e cinco grupos privados, sem atribuir membros.
+
+No Open WebUI, um administrador deve abrir Administracao > Grupos e associar:
+Hermes - TI: usuarios do TI.
+Hermes - Comercial: usuarios do Comercial.
+Hermes - Fiscal e Aduaneiro: classificacao fiscal e regulamento aduaneiro.
+Hermes - Documentacao e Operacoes: conferente e organizador de PDFs.
+Hermes - Revisao de Textos: usuarios autorizados a revisao.
+O coordenador geral fica restrito a administradores. Administradores podem usar
+todos os perfis. Um usuario pode pertencer a varios grupos. Reinstalar preserva
+membros; os acessos dos modelos Hermes sao sincronizados com o catalogo.
+
+INTERFACE RESTRITA
+O integrador aplica permissoes padrao e aos grupos existentes: usuarios comuns
+nao podem abrir controles, modificar prompt de sistema/parametros/Valves,
+usar chat temporario, combinar modelos ou selecionar integracoes opcionais.
+Ferramentas e skills do Open WebUI ficam privadas do administrador. Funcoes
+opcionais do tipo filter/action sao desativadas; as Pipes Hermes permanecem
+ativas, assim como suas ferramentas internas, Chromium, anexos e downloads.
+Essa politica vale para usuarios comuns em todo o Open WebUI. Administradores
+continuam vendo controles e chat temporario por regra nativa do aplicativo.
+Novos grupos devem manter essas permissoes desativadas: permissoes de grupos
+podem ampliar as padrao. Reexecute o integrador para reaplicar a politica.
+Ha backup das permissoes anteriores no volume Open WebUI, em
+/app/backend/data/hermes-access-backups/. Nenhum backup entra no instalador.
+
+A lista usa permissoes nativas de modelos. A Pipe consulta o usuario e seus
+grupos no banco a cada chamada, mesmo quando o cliente solicita um ID oculto.
+O Hermes recebe contexto assinado pela integracao, seleciona ferramentas no
+servidor e transmite o mesmo escopo aos subagentes. O perfil nao e escolhido
+pelo texto da conversa. Nao distribua API_SERVER_KEY a usuarios finais: ela
+e uma credencial administrativa de servico. Dashboard e API sao administrativos.
+A rota chat/completions exige agora contexto assinado, portanto use a Pipe;
+conexoes OpenAI diretas antigas precisam migrar para a integracao.
+
+As tarefas usam pastas por usuario/chat/perfil/execucao. As ferramentas dos
+especialistas nao oferecem terminal, execucao de codigo ou leitura arbitraria
+do container. Entradas ficam em inputs/ e nao podem ser sobrescritas. Anexos
+devem pertencer ao usuario autenticado; IDs, caminhos e URLs do cliente nao
+concedem acesso a arquivos de terceiros. Limite: 20 anexos/arquivos, 25 MB cada.
+Workspace_file le PDF com texto (ate 10 paginas por chamada), DOCX, XLSX e texto;
+gera texto/codigo, XLSX e ZIP. Workspace_pdf une, extrai e reordena paginas e
+confere a contagem. PDFs escaneados podem ser separados/unidos, mas OCR ainda
+nao esta habilitado. Codigo e SQL sao gerados/revisados, nao executados.
+
+Delegacao nativa: ate 3 filhos por tarefa, um nivel, prazo de 900 segundos por
+filho, heranca de ferramentas e escopo e propagacao nativa de cancelamento.
+Todas as pesquisas compartilham os 3 Chromium; ha fila e limpeza ao terminar.
+Os filhos sao atividades do perfil autorizado, nao outros setores liberados
+por prompt. A especializacao orienta o modelo; nao impede que um modelo tenha
+conhecimento geral. A barreira aplica acesso a perfis, ferramentas e arquivos.
+O feedback identifica o numero do subagente e o perfil do qual ele herdou o
+escopo. O coordenador NAO encaminha automaticamente para outro assistente
+da lista. Para classificacao fiscal, selecione o perfil Classificacao Fiscal.
+Todos os perfis e filhos recebem a regra de responder em portugues do Brasil,
+salvo pedido em outra lingua; referencias e codigo podem manter o original.
+
+As bases internas devem ser adicionadas e autorizadas no Open WebUI por setor.
+Nenhum documento empresarial ou acervo juridico esta incluido no pacote.
+O contexto de recuperacao de conhecimento do Open WebUI segue nas mensagens;
+confira e teste as permissoes de cada base antes de compartilhar. Fiscal e
+aduaneiro devem consultar fontes oficiais vigentes e produzir propostas para
+revisao humana. Nao ha conexoes com CRM, bancos, n8n ou envio comercial automatico.
+
+Esta e restricao de ferramentas em um container compartilhado, nao isolamento
+de sistema operacional por usuario. Para executar codigo nao confiavel ou
+conectar sistemas de producao, adicione servicos separados com credenciais e
+permissoes especificas. Nao libere terminal global para contornar estas regras.
+
+O pacote contem somente configuracao e codigo. Nao inclui senhas, chaves,
+usuarios, documentos, historico de conversas ou perfis Chromium da instalacao.

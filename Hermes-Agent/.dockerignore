@@ -1,0 +1,9 @@
+.env
+.env.openwebui
+.git
+.gitignore
+README.txt
+*.zip
+dist
+__pycache__
+tests

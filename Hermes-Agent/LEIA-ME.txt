@@ -1,0 +1,99 @@
+VERSAO LAN COM 3 PESQUISAS: consulte LEIA-ME-3-PESQUISAS.txt.
+INSTALACAO COMPLETA COM OPEN WEBUI: execute INSTALAR.cmd e consulte LEIA-ME-INSTALACAO-COMPLETA.txt.
+
+Para Linux, consulte LEIA-ME-LINUX.txt e use instalar-hermes.sh.
+
+INSTALADOR DO MEU HERMES AGENT - Windows
+======================================
+
+1. Extraia TODO o ZIP em uma pasta local, por exemplo C:\Hermes-Agent.
+   Nao execute o instalador diretamente dentro do ZIP.
+2. Abra a pasta Hermes-Agent extraida e execute INSTALAR.cmd.
+   Ou, pelo PowerShell nessa pasta:
+   powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\instalar-hermes.ps1 -InstalarDocker
+3. Se Docker nao estiver instalado, o script tenta instala-lo pelo Winget.
+   Abra Docker Desktop, conclua sua configuracao inicial e aceite os termos.
+   Configure WSL 2/virtualizacao e reinicie o computador se solicitado.
+   Depois execute INSTALAR.cmd novamente.
+   Docker ja instalado: deixe-o aberto com o engine de containers Linux ativo.
+4. Aguarde o download/construcao e a mensagem "Instalacao concluida".
+5. Na propria maquina, abra http://127.0.0.1:9120/. Em outro computador da mesma rede, use http://IP-DA-MAQUINA:9120/. Entre com as credenciais geradas no .env:
+   HERMES_DASHBOARD_BASIC_AUTH_USERNAME (padrao: admin)
+   HERMES_DASHBOARD_BASIC_AUTH_PASSWORD (senha aleatoria)
+6. Em http://127.0.0.1:9120/env, vincule sua NVIDIA_API_KEY e salve.
+   Modelo preconfigurado: nvidia/nemotron-3-super-120b-a12b.
+   Alternativa: preencha NVIDIA_API_KEY no .env local e execute iniciar.ps1.
+7. Acompanhe as pesquisas localmente em http://127.0.0.1:6080/ ou pela rede em http://IP-DA-MAQUINA:6080/.
+   Para interagir pela rede: abra http://IP-DA-MAQUINA:6080/ e selecione Chromium 1, 2 ou 3.
+
+REQUISITOS
+----------
+Windows com PowerShell 5.1+, Docker Desktop com Compose e containers Linux.
+Internet para baixar as imagens e usar a API NVIDIA; hardware x86-64 recomendado.
+Docker precisa de WSL 2/virtualizacao e RAM suficiente; esta pilha tem limite de 6 GB.
+Portas livres: 9120 (dashboard), 6080 (Chromium), 8643 (API do Hermes). Por padrao elas sao publicadas em 0.0.0.0, funcionando via localhost e via IPv4 da maquina.
+Requisitos oficiais do Docker:
+https://docs.docker.com/desktop/setup/install/windows-install/
+
+ACESSO PELA REDE LOCAL
+----------------------
+Por padrao, HERMES_BIND_ADDRESS=0.0.0.0. Assim, localhost continua funcionando e outros computadores da mesma LAN podem usar o IPv4 da maquina que roda o Hermes.
+Exemplo, se o computador do Hermes for 192.168.1.50:
+  Dashboard: http://192.168.1.50:9120/
+  Chromium:  http://192.168.1.50:6080/
+  API:       http://192.168.1.50:8643/
+Para restringir novamente a somente localhost, altere no .env:
+  HERMES_BIND_ADDRESS=127.0.0.1
+e execute .\iniciar.ps1.
+Se a LAN nao conectar, permita entrada TCP 9120, 6080 e 8643 no Firewall do Windows apenas no perfil Privado. Exemplo em Prompt/PowerShell como Administrador:
+  netsh advfirewall firewall add rule name="Hermes Dashboard 9120" dir=in action=allow protocol=TCP localport=9120 profile=private
+  netsh advfirewall firewall add rule name="Hermes Chromium 6080" dir=in action=allow protocol=TCP localport=6080 profile=private
+  netsh advfirewall firewall add rule name="Hermes API 8643" dir=in action=allow protocol=TCP localport=8643 profile=private
+IMPORTANTE: o visualizador exige o mesmo usuario e senha do dashboard. Nao exponha essas portas diretamente para a Internet; mantenha-as limitadas a uma rede confiavel/VPN.
+
+O QUE E REPLICADO
+----------------
+Hermes v2026.9.11 com a imagem-base fixada por digest; supervisor s6 oficial;
+dashboard autenticado; Chromium visivel com noVNC; perfil persistente;
+tres Chromium isolados com CDP interno nas portas 9222-9224; modelo NVIDIA Nemotron selecionado;
+pesquisas e navegacao direcionadas automaticamente para esse Chromium.
+Os toolsets web/search ficam desabilitados e a politica e gravada em AGENTS.md
+e SOUL.md. Nao e necessario pedir "use Chromium" ou executar /browser connect.
+Esta politica nao e um firewall: ferramentas de terminal ainda tem acesso a rede.
+Sites podem exigir login/CAPTCHA; use o link de interacao acima quando necessario.
+
+E uma instalacao nova com a mesma configuracao preparada neste projeto.
+O pacote NAO leva sua chave NVIDIA, suas senhas atuais, chats, cookies, logins,
+memorias, configuracoes pessoais posteriores do dashboard ou volumes Docker.
+Chromium e dependencias Debian sao instalados dos repositorios na hora do build;
+suas versoes podem variar. Nao e uma copia binaria/offline da imagem atual.
+
+CREDENCIAIS E PERSISTENCIA
+-------------------------
+O primeiro uso gera .env com senha aleatoria e chaves locais independentes.
+NVIDIA_API_KEY fica vazia. API_SERVER_KEY e para o controle do Hermes, nao para
+um modelo local. O .env nunca e sobrescrito quando o instalador e repetido.
+Nao compartilhe o .env gerado. Empacotar.ps1 usa uma lista explicita de arquivos
+e nunca inclui .env, volumes ou dados pessoais.
+As credenciais salvas no dashboard ficam no volume hermes_data (/opt/data).
+O perfil Chromium fica no volume hermes_browser_data (/browser-data).
+Use sempre a mesma pasta para administrar/reexecutar a instalacao.
+Nao execute docker compose down -v: isso apaga os volumes.
+
+COMANDOS UTEIS (na pasta extraida)
+----------------------------------
+.\iniciar.ps1                    - construir/iniciar e aguardar saude
+docker compose ps               - ver o estado
+docker compose logs --tail=100   - diagnostico (pode conter dados privados)
+docker compose stop             - parar, preservando dados
+docker compose start            - iniciar novamente
+docker compose restart          - reiniciar
+.\instalar-hermes.ps1 -PrepararSomente - gerar .env sem usar Docker
+.\empacotar.ps1                 - gerar novo ZIP apenas dos fontes permitidos
+
+SHA256SUMS.csv lista os hashes dos arquivos distribuidos no pacote.
+O container reinicia automaticamente com o Docker (restart: unless-stopped).
+Docker Desktop tambem precisa iniciar no computador de destino.
+Nao e necessario GPU local: o modelo roda na API NVIDIA.
+
+OPEN WEBUI: consulte LEIA-ME-OPEN-WEBUI.txt para instalar o assistente com feedback de fila.

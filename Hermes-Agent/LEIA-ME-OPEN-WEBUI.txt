@@ -1,0 +1,82 @@
+HERMES NO OPEN WEBUI
+===================
+Integracao 2.2.0 - revisao corrigida 2026.10.14-r1.
+
+Se aparecer "a entrega de arquivos ainda nao esta disponivel" mesmo enviando
+somente texto, atualize com o INSTALAR.cmd completo (ou INSTALAR-LINUX.sh),
+na pasta original e mantendo os arquivos .env. Nao basta importar uma Pipe nova
+sobre um Hermes antigo. O instalador valida autenticacao, versao, escopo e
+endereco; sincroniza a conexao local e preserva permissoes e dados existentes.
+
+Use a funcao Pipe deste pacote para preservar identidade por usuario/chat
+e mostrar avisos de fila sem misturar o status ao texto da resposta.
+Nao e necessario instalar o Open WebUI no mesmo container Hermes.
+
+1. Instale/inicie o Hermes conforme LEIA-ME-3-PESQUISAS.txt.
+   Se o Open WebUI ja estiver em um container chamado open-webui, voce pode
+   instalar e configurar a integracao automaticamente, sem copiar a chave:
+   Windows: powershell.exe -NoProfile -ExecutionPolicy Bypass -File integrar-openwebui.ps1
+   Linux: bash integrar-openwebui.sh
+   Linux, se host.docker.internal nao resolver, use seu IPv4 LAN:
+     bash integrar-openwebui.sh open-webui http://IP-DO-HERMES:8643/v1
+   Outro nome de container no Windows: -Container NOME
+   Outro endereco no Windows: -BaseUrl http://IP-DO-HERMES:8643/v1
+   Isso requer conta administrativa ja criada no Open WebUI.
+   O script cria oito funcoes/modelos privados e cinco grupos, incorpora o
+   catalogo de perfis e grava API_SERVER_KEY nas Valves locais de cada funcao.
+   Use o integrador: importar somente a Pipe sem o catalogo nao habilita acesso.
+2. No Open WebUI entre como administrador e abra Administracao > Grupos.
+   Associe os usuarios aos grupos dos setores conforme LEIA-ME-ESPECIALISTAS.txt.
+3. Atualize a pagina. Abra um chat e selecione o especialista Hermes autorizado.
+   O coordenador geral esta disponivel somente para administradores.
+   A chave NVIDIA fica apenas no Hermes. Nao a coloque no Open WebUI.
+
+ENDERECO DE CONEXAO
+Docker Desktop, Open WebUI no mesmo computador: host.docker.internal.
+Open WebUI nativo no mesmo computador: http://127.0.0.1:8643/v1.
+Open WebUI em outro computador: http://IP-DO-HERMES:8643/v1.
+No Linux, se host.docker.internal nao resolver no container Open WebUI,
+adicione ao Compose do Open WebUI:
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+Ou use o IPv4 LAN do computador Hermes. Libere TCP 8643 apenas nessa rede.
+Dentro do container Open WebUI, 127.0.0.1 aponta para ele mesmo, nao Hermes.
+
+FEEDBACK AO USUARIO
+Ao pesquisar, o chat mostra qual Chromium foi reservado (1, 2 ou 3).
+Se as tres vagas estiverem ocupadas, mostra fila, posicao e previsao aproximada.
+Sem historico suficiente, informa que ainda nao ha previsao.
+Atualiza quando a posicao muda ou a cada 30 segundos.
+Ao finalizar, mostra status concluido e o Chromium da tarefa e encerrado.
+Cancelar/parar o chat fecha o stream e solicita interrupcao no Hermes;
+a limpeza ocorre quando a tarefa interrompida sai do ciclo de execucao.
+As telas continuam em http://IP-DO-HERMES:6080/ com senha do dashboard.
+
+ISOLAMENTO
+A Pipe envia X-Hermes-Session-Id derivado do usuario e do chat.
+Chats com a mesma primeira pergunta nao compartilham sessao Hermes.
+Nao habilite a pesquisa web/ferramentas externas do Open WebUI nesse modelo:
+o proprio Hermes executa suas ferramentas browser_* no Chromium.
+Tarefas automaticas de titulo/tags/follow-ups sao respondidas localmente
+pela Pipe e nao abrem novas pesquisas nem consomem a fila.
+
+ESPECIALISTAS E CONTROLE DE ACESSO
+Nesta versao a rota chat/completions exige contexto assinado pela Pipe.
+Conexoes OpenAI diretas antigas precisam migrar para esta integracao.
+Consulte LEIA-ME-ESPECIALISTAS.txt para grupos, membros e limites das ferramentas.
+O integrador cria os especialistas e grupos; nao adiciona membros automaticamente.
+
+O arquivo Pipe vem SEM chaves. Configure a chave local em cada computador.
+
+RELATORIOS E ARQUIVOS PARA BAIXAR
+A Pipe instrui o Hermes a salvar os arquivos finais em uma pasta exclusiva
+da solicitacao. Ao concluir, transfere os arquivos ao armazenamento do
+Open WebUI, vinculados ao usuario do chat, e acrescenta links de download.
+Eles permanecem disponiveis apos encerrar o Chromium e reiniciar o Hermes.
+Cada arquivo pode ter ate 25 MB; ate 20 arquivos por solicitacao.
+Suporta HTML, PDF, DOCX, XLSX, PPTX, CSV, TXT, MD, JSON, XML, ZIP e imagens.
+HTML e entregue para baixar; abra o arquivo baixado em seu navegador.
+Codigo extenso e entregue como arquivo completo da linguagem: PY, JS, TS,
+JAVA, C, CPP, CS, GO, RS, PHP, SQL, SH, PS1 e outros formatos de codigo.
+Para projetos com subpastas, solicite um ZIP com a estrutura completa.
+Reexecute integrar-openwebui.ps1 ou integrar-openwebui.sh ao atualizar a Pipe.

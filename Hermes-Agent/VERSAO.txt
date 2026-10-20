@@ -1,0 +1,9 @@
+Hermes Agent + Open WebUI
+Imagem base Hermes: v2026.9.11 (digest fixado no Dockerfile)
+Revisao dos instaladores: 2026.10.14-r1
+Integracao Open WebUI: 2.2.0
+Protocolo de verificacao: 1
+
+Correcao: texto nao depende da preparacao de arquivos; endereco e chave local
+sao sincronizados; instalacao verifica a API assinada antes de anunciar sucesso.
+Permissoes, dados, chave NVIDIA e configuracoes administrativas preservados.

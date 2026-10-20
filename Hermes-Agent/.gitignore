@@ -1,0 +1,11 @@
+.env
+.env.openwebui
+__pycache__/
+*.py[cod]
+dist/*
+*.zip
+!dist/Hermes-Agent-Installer-v2026.9.11.zip
+!dist/Hermes-Agent-Installer-v2026.9.11-LAN.zip
+!dist/Hermes-Agent-Installer-v2026.9.11-LAN-3.zip
+!dist/Hermes-OpenWebUI-Installer-Linux-v2026.9.11.zip
+!dist/Hermes-OpenWebUI-Installer-Windows-v2026.9.11.zip

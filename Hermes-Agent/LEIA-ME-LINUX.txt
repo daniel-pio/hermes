@@ -1,0 +1,57 @@
+VERSAO LAN COM 3 PESQUISAS: consulte LEIA-ME-3-PESQUISAS.txt.
+INSTALACAO COMPLETA COM OPEN WEBUI: execute bash INSTALAR-LINUX.sh e consulte LEIA-ME-INSTALACAO-COMPLETA.txt.
+
+HERMES AGENT - INSTALACAO LINUX
+==============================
+
+Extraia todo o ZIP e abra um terminal na pasta Hermes-Agent.
+
+Ubuntu/Debian, incluindo instalacao do Docker se estiver ausente:
+  bash instalar-hermes.sh --instalar-docker
+
+Docker Engine e Docker Compose ja instalados (qualquer distribuicao Linux):
+  bash instalar-hermes.sh
+
+O script usa sudo quando necessario. Nao execute o instalador inteiro com sudo:
+assim o .env fica sob sua propriedade. Ele nao adiciona usuarios ao grupo docker.
+Se seu usuario nao tiver acesso ao daemon, os comandos Docker usam sudo.
+Docker existente sem Compose: instale o plugin Compose conforme a documentacao
+da distribuicao. O script nao remove/substitui pacotes conflitantes.
+
+Documentacao oficial usada para a instalacao do Docker pelo repositorio APT:
+https://docs.docker.com/engine/install/ubuntu/
+https://docs.docker.com/engine/install/debian/
+
+ACESSO E CHAVE
+--------------
+Dashboard local: http://127.0.0.1:9120/
+Chromium local: http://127.0.0.1:6080/
+Na rede local, use http://IP-DA-MAQUINA:9120/ e http://IP-DA-MAQUINA:6080/.
+Usuario e senha nova aleatoria: veja .env (permissao 600 na criacao).
+Vincule NVIDIA_API_KEY pelo dashboard em http://127.0.0.1:9120/env.
+O modelo NVIDIA Nemotron ja estara selecionado.
+Para interagir com o Chromium:
+http://127.0.0.1:6080/ (selecione Chromium 1, 2 ou 3)
+
+Por padrao, HERMES_BIND_ADDRESS=0.0.0.0: as portas 9120, 6080 e 8643 ficam acessiveis por localhost e pelo IPv4 da maquina. Para restringir a somente localhost, defina HERMES_BIND_ADDRESS=127.0.0.1 no .env e reinicie.
+Se houver UFW/firewalld, libere essas portas apenas para sua rede local ou VPN. Nao exponha o noVNC diretamente na Internet, o visualizador exige o mesmo usuario e senha do dashboard.
+
+REEXECUCAO E PERSISTENCIA
+-----------------------
+Execute sempre na mesma pasta. .env existente e volumes sao preservados.
+Para iniciar/reconstruir: bash instalar-hermes.sh
+Somente gerar credenciais: bash instalar-hermes.sh --preparar-somente
+Usuario personalizado na primeira criacao: bash instalar-hermes.sh --usuario carlos
+Timeout de saude maior: bash instalar-hermes.sh --timeout 300
+Para administrar: docker compose ps / stop / start / restart
+Use sudo docker compose ... se seu usuario nao tiver acesso ao daemon.
+Nao execute docker compose down -v: isso apaga os dados.
+
+O pacote contem a configuracao nova, sem sua senha pessoal, chave API, cookies
+ou conversas. Gera novas credenciais locais e deixa a chave NVIDIA vazia.
+Pesquisas/navegacao usam o Chromium visivel pela mesma politica do pacote Windows.
+Portas: 9120, 6080 e 8643. CDP 9222-9224 e gerenciador 6079 ficam internos ao container.
+Internet necessaria; recursos suficientes para limite de 6 GB e 3.5 CPUs da pilha.
+Nao precisa de GPU local. Bash e utilitarios padrao (od/tr) sao necessarios.
+A autoinstalacao do Docker usa APT e systemd no Ubuntu/Debian.
+Consulte LEIA-ME.txt para detalhes da configuracao comum e persistencia.

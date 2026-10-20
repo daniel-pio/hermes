@@ -1,0 +1,80 @@
+HERMES AGENT - LAN - 3 PESQUISAS SIMULTANEAS
+==========================================
+
+INSTALAR NO LINUX
+Extraia todo o ZIP, entre na pasta Hermes-Agent e execute:
+  bash instalar-hermes.sh --instalar-docker
+Se Docker e Compose ja estiverem instalados:
+  bash instalar-hermes.sh
+Veja LEIA-ME-LINUX.txt para requisitos e detalhes.
+
+INSTALAR NO WINDOWS
+Extraia todo o ZIP e execute INSTALAR.cmd.
+Docker Desktop deve usar containers Linux.
+Veja LEIA-ME.txt para detalhes.
+
+ACESSO PELA REDE LOCAL
+Dashboard: http://IP-DO-COMPUTADOR:9120/
+Navegadores: http://IP-DO-COMPUTADOR:6080/
+Use o mesmo usuario e senha do .env nos dois enderecos.
+O instalador gera uma senha nova; nenhuma senha pessoal vem no pacote.
+Vincule sua chave NVIDIA pelo dashboard /env apos instalar.
+O modelo continua nvidia/nemotron-3-super-120b-a12b.
+
+HERMES_BIND_ADDRESS=0.0.0.0 publica as portas em todas as interfaces IPv4.
+Se voce copiar um .env antigo com HERMES_BIND_ADDRESS=127.0.0.1, altere-o
+para 0.0.0.0 para liberar o acesso LAN. O instalador preserva .env existente.
+Libere TCP 9120 e 6080 no firewall somente para sua rede local/VPN.
+TCP 8643 e a API Hermes, com API_SERVER_KEY, se voce precisar de clientes API.
+CDP 9222-9224 e gerenciador 6079 nao sao publicados no host.
+Acesso usa HTTP; nao publique essas portas diretamente na Internet.
+
+COMO FUNCIONA
+As ferramentas browser_* recebem um Chromium exclusivo por tarefa.
+Ha no maximo 3 vagas, com perfis, telas, processos e portas CDP separados.
+Na pagina 6080 selecione Chromium 1, 2 ou 3 para acompanhar uma pesquisa.
+As telas mostram vagas, nao usuarios: pessoas com a senha compartilhada
+podem visualizar/interagir com qualquer uma das tres telas.
+Uma vaga livre fica desconectada e nao mantem Chromium aberto.
+Cada nova tarefa recebe um perfil temporario: logins/cookies nao persistem.
+Nao existe navegador adicional na nuvem nem fallback fora deste pool.
+
+Uma quarta tarefa entra em fila FIFO e aguarda ate 600 segundos por uma vaga.
+O chat recebe aviso de fila, posicao e previsao aproximada de atendimento.
+A previsao usa a mediana das ultimas 30 sessoes, a partir de 3 concluicoes;
+sem historico suficiente, informa que a previsao ainda esta indisponivel.
+O aviso se atualiza quando a posicao muda ou a cada 30 segundos.
+Ao cancelar a tarefa, sua entrada na fila e removida.
+Se nenhuma vaga liberar dentro do limite, a ferramenta informa o timeout.
+Isso limita navegadores ativos, nao o numero de chats do dashboard.
+Conclusao, erro ou cancelamento encerra Chromium e auxiliares da tarefa,
+remove seu perfil temporario e libera a vaga sem fechar outros Chromium.
+Se o processo dono morrer, a limpeza de seguranca verifica a cada 2 segundos.
+Ha limites de seguranca: 300 segundos sem comandos browser e 1800 segundos
+de duracao total da sessao. Podem ser ajustados no docker-compose.yml:
+  BROWSER_POOL_IDLE_SECONDS
+  BROWSER_POOL_MAX_SECONDS
+  BROWSER_POOL_QUEUE_SECONDS (tempo limite de espera na fila)
+Esses limites encerram o navegador, nao interrompem o chat inteiro.
+
+ATUALIZAR UMA INSTALACAO EXISTENTE
+Use a pasta original e preserve seu .env. Substitua os arquivos do pacote
+e execute novamente o instalador. Conversas/chaves ficam no volume Hermes.
+Os perfis Chromium temporarios desta versao nao reutilizam o perfil antigo.
+Faca a atualizacao quando nao houver pesquisas em andamento: o container
+sera recriado para usar a nova imagem.
+Windows, se mudou a pasta e quer usar os volumes da instalacao existente:
+  powershell.exe -NoProfile -ExecutionPolicy Bypass -File instalar-hermes.ps1 -ReusarInstalacao
+Preserve o .env original nessa pasta antes de usar -ReusarInstalacao.
+Linux: use a pasta original; o instalador bloqueia substituicao de outra pasta.
+Nunca use docker compose down -v para atualizar: isso apaga os volumes.
+
+EMPACOTAR NOVAMENTE
+No Windows: powershell.exe -NoProfile -ExecutionPolicy Bypass -File empacotar.ps1
+O ZIP inclui apenas arquivos de instalacao/configuracao e SHA256SUMS.csv.
+Nao inclui .env, chaves, senhas, conversas, volumes nem cookies.
+
+RECURSOS
+O Compose permite ate 6 GB de RAM, 3.5 CPUs e 1 GB de memoria compartilhada.
+Tres sites pesados podem exigir mais recursos; avalie o consumo do computador.
+Nenhuma chave NVIDIA e necessaria para iniciar; configure-a para conversar.

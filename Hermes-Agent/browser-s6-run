@@ -1,0 +1,21 @@
+#!/command/with-contenv sh
+set -eu
+
+# This small root phase prepares X11 and the persistent browser profile.
+mkdir -p /tmp/.X11-unix
+chown root:root /tmp/.X11-unix
+chmod 1777 /tmp/.X11-unix
+rm -f /tmp/.X99-lock /tmp/.X11-unix/X99 2>/dev/null || true
+
+mkdir -p /browser-data/chromium
+chown -R browser:browser /browser-data
+
+# Remove only Chromium's transient ProcessSingleton locks after an abrupt stop.
+# Cookies, history, saved sessions and site data are preserved.
+rm -f \
+  /browser-data/chromium/SingletonLock \
+  /browser-data/chromium/SingletonSocket \
+  /browser-data/chromium/SingletonCookie \
+  2>/dev/null || true
+
+exec s6-setuidgid browser /usr/local/bin/browser-stack.sh
